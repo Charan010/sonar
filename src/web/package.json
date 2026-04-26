@@ -1,0 +1,35 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+     "server": "nodemon server.js",
+     "client": "cd client && npm start", 
+      "dev": "concurrently \"npm run server\" \"npm run client\"",
+      "start": "node server.js", "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Charan010/Sonar-image-classification.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Charan010/Sonar-image-classification/issues"
+  },
+  "homepage": "https://github.com/Charan010/Sonar-image-classification#readme",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "elliptic": "^6.6.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14"
+  }
+}

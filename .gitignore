@@ -1,0 +1,4 @@
+venv/
+
+src/model/
+*.h5
