@@ -5,6 +5,8 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth.routes');
 const { connectDB } = require('./services/user.service');
+const uploadRoutes = require("./routes/upload.routes");
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/upload', uploadRoutes);
 
 async function startServer() {
   try {

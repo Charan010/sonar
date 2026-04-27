@@ -3,11 +3,7 @@ const router = express.Router();
 
 const jwt = require('jsonwebtoken')
 
-const {
-    generateChallenge,
-    VerifySchnorrResponse
-
-} = require('../services/crypto.service');
+const { generateChallenge, verifySchnorrResponse } = require('../services/crypto.service');
 
 const { findUserByUsername } = require('../services/user.service');
 const { getChallenge, setChallenge, deleteChallenge } = require('../utils/challengeStore');
@@ -55,7 +51,7 @@ router.post("/login/verify", async (req, res) => {
 
         deleteChallenge(username);
 
-        const isValid = VerifySchnorrResponse({R : challenge.R , s, c : challenge.c , pub : user.pub});
+        const isValid = verifySchnorrResponse({R : challenge.R , s, c : challenge.c , pub : user.pub});
 
         if(!isValid)
             return res.status(401).json({ error : "Login failed"})
@@ -64,10 +60,10 @@ router.post("/login/verify", async (req, res) => {
             expiresIn: '2h',
         });
 
-        res.json({status: "Login succesful", token})
+        return res.json({status: "Login succesful", token})
 
     }catch(err){
-        res.status(500).json({ error : "Verification failed"})
+        return res.status(500).json({ error : "Verification failed"})
     }
 
 });

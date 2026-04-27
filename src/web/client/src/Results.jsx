@@ -1,18 +1,48 @@
-import React, { useEffect } from 'react';
-import { Download, X, Waves } from 'lucide-react';
-import './SonarDashboard.css';
+import React from "react";
+import { Download, X, Waves } from "lucide-react";
+import "./SonarDashboard.css";
 
-const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBookmarked }) => {
-  useEffect(() => {
-    const items = document.querySelectorAll('.classification-item');
-    items.forEach((item) => {
-      const bar = item.querySelector('.confidence-bar');
-      if (bar) {
-        const pct = bar.getAttribute('data-pct') || bar.style.width || '0%';
-        bar.style.setProperty('--target-width', pct);
-      }
-    });
-  }, [classificationResult]);
+const Results = ({
+  classificationResult,
+  onReset,
+  onBack,
+  onToggleBookmark,
+  isBookmarked,
+}) => {
+
+  const primary = classificationResult?.classifications?.[0];
+
+  const triggerDownload = (href, name) => {
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const downloadResults = () => {
+    const blob = new Blob(
+      [JSON.stringify(classificationResult, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    triggerDownload(
+      url,
+      `${classificationResult.filename.replace(/\.[^/.]+$/, "")}_report.json`
+    );
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const downloadProcessed = () => {
+    triggerDownload(
+      classificationResult.processed || classificationResult.original,
+      `classified_${classificationResult.filename}`
+    );
+  };
 
   if (!classificationResult) {
     return (
@@ -21,6 +51,7 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
           <Waves size={64} color="#64748b" />
           <h2>No Analysis Results</h2>
           <p>Please upload and analyze a SONAR image first</p>
+
           <button onClick={onBack} className="back-button btn muted">
             Back to Upload
           </button>
@@ -29,44 +60,49 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
     );
   }
 
-  const downloadResults = () => {
-    const blob = new Blob([JSON.stringify(classificationResult, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${classificationResult.filename.replace(/\.[^/.]+$/, '')}_report.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const downloadProcessed = () => {
-    const link = document.createElement('a');
-    link.href = classificationResult.processed || classificationResult.original;
-    link.download = `classified_${classificationResult.filename}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const ImageCard = ({ title, src, children }) => (
+    <div className="image-card">
+      <h4>{title}</h4>
+      <div className="image-container">
+        <img src={src} alt={title} loading="lazy" />
+      </div>
+      {children}
+    </div>
+  );
 
   return (
     <div className="results-container">
+
+      {/* HEADER */}
       <div className="results-header">
         <div className="header-content">
           <div className="header-title">
             <Waves size={32} color="#60a5fa" />
             <h1>SONAR AI Analysis Results</h1>
           </div>
+
           <div className="header-actions">
-            <button onClick={downloadResults} className="download-button cyan btn">
+            <button
+              onClick={downloadResults}
+              className="download-button cyan btn"
+            >
               <Download size={16} /> Download JSON
             </button>
 
-            <button onClick={downloadProcessed} className="download-button green btn">
+            <button
+              onClick={downloadProcessed}
+              className="download-button green btn"
+            >
               <Download size={16} /> Download Image
             </button>
 
-            <button onClick={onToggleBookmark} className={`bookmark-button ${isBookmarked ? 'amber' : 'purple'} btn`}>
-              {isBookmarked ? 'Remove Bookmark' : 'Bookmark'}
+            <button
+              onClick={onToggleBookmark}
+              className={`bookmark-button ${
+                isBookmarked ? "amber" : "purple"
+              } btn`}
+            >
+              {isBookmarked ? "Remove Bookmark" : "Bookmark"}
             </button>
 
             <button onClick={onReset} className="reset-button muted btn">
@@ -76,10 +112,11 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
         </div>
       </div>
 
+      {/* CONTENT */}
       <div className="results-content">
         <div className="results-grid">
-          
-          {/* LEFT COLUMN */}
+
+          {/* LEFT */}
           <div className="main-column">
 
             {/* Description */}
@@ -89,107 +126,99 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
                 <p>{classificationResult.aiDescription}</p>
               </div>
               <p className="description-note">
-                Automatically generated description based on AI analysis of sonar imagery
+                Automatically generated description based on AI analysis
               </p>
             </div>
 
-            {/* Images - Now with 3 images */}
+            {/* Images */}
             <div className="images-grid">
 
-              <div className="image-card">
-                <h4>Original SONAR Image</h4>
-                <div className="image-container">
-                  <img src={classificationResult.original} alt="Original sonar scan" />
-                </div>
+              <ImageCard
+                title="Original SONAR Image"
+                src={classificationResult.original}
+              >
                 <div className="image-meta">
                   <span>{classificationResult.filename}</span>
                 </div>
-              </div>
+              </ImageCard>
 
-              {/* Grad-CAM Heatmap */}
               {classificationResult.gradcamHeatmap && (
-                <div className="image-card">
-                  <h4>Grad-CAM Heatmap</h4>
-                  <div className="image-container">
-                    <img src={classificationResult.gradcamHeatmap} alt="Grad-CAM heatmap" />
-                  </div>
+                <ImageCard
+                  title="Grad-CAM Heatmap"
+                  src={classificationResult.gradcamHeatmap}
+                >
                   <div className="heatmap-legend">
-                    <span className="legend-low">Low Activation</span>
+                    <span>Low</span>
                     <div className="legend-colors">
                       <div className="color-blue"></div>
                       <div className="color-green"></div>
                       <div className="color-yellow"></div>
                       <div className="color-red"></div>
                     </div>
-                    <span className="legend-high">High Activation</span>
+                    <span>High</span>
                   </div>
-                </div>
+                </ImageCard>
               )}
 
-              {/* LIME Explanation */}
               {classificationResult.limeHeatmap && (
-                <div className="image-card">
-                  <h4>LIME Explanation</h4>
-                  <div className="image-container">
-                    <img src={classificationResult.limeHeatmap} alt="LIME explanation" />
-                  </div>
-                  <div className="heatmap-legend">
-                    <span className="legend-low">Low Importance</span>
-                    <div className="legend-colors">
-                     
-                    </div>
-                    <span className="legend-high">High Importance</span>
-                  </div>
-                </div>
+                <ImageCard
+                  title="LIME Explanation"
+                  src={classificationResult.limeHeatmap}
+                />
               )}
 
             </div>
 
+            {/* Metadata */}
             <div className="metadata-card">
               <h4>SONAR Parameters</h4>
 
-              <div className="metadata-grid">
-                <div className="metadata-item">
-                  <span className="metadata-label">Processed:</span>
-                  <span className="metadata-value">
-                    {classificationResult.metadata.timestamp}
-                  </span>
-                </div>
+              <div className="metadata-item">
+                <span className="metadata-label">Processed:</span>
+                <span className="metadata-value">
+                  {classificationResult.metadata?.timestamp || "-"}
+                </span>
+              </div>
 
-                <div className="metadata-item">
-                  <span className="metadata-label">Uploaded By:</span>
-                  <span className="metadata-value">
-                    {classificationResult.metadata.uploadedBy}
-                  </span>
-                </div>
+              <div className="metadata-item">
+                <span className="metadata-label">Uploaded By:</span>
+                <span className="metadata-value">
+                  {classificationResult.metadata?.uploadedBy || "-"}
+                </span>
               </div>
             </div>
 
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* RIGHT */}
           <div className="sidebar-column">
 
+            {/* Classifications */}
             <div className="classifications-card">
               <h4>AI Classifications</h4>
+
               <div className="classifications-list">
-                {classificationResult.classifications.map((classification, index) => (
-                  <div className="classification-item" key={index}>
+                {classificationResult.classifications.map((c, i) => (
+                  <div className="classification-item" key={i}>
+
                     <div className="classification-header">
                       <div className="classification-info">
-                        <div className="classification-icon">{classification.icon}</div>
-                        <span className="classification-name">{classification.category}</span>
+                        <div className="classification-icon">{c.icon}</div>
+                        <span className="classification-name">{c.category}</span>
                       </div>
+
                       <span className="classification-confidence">
-                        {Number(classification.confidence).toFixed(1)}%
+                        {Number(c.confidence || 0).toFixed(1)}%
                       </span>
                     </div>
 
                     <div className="confidence-bar-bg">
                       <div
                         className="confidence-bar"
-                        data-pct={`${classification.confidence}%`}
-                        style={{ width: `${classification.confidence}%` }}
+                        style={{
+                          width: `${c.confidence}%`,
+                          "--target-width": `${c.confidence}%`,
+                        }}
                       />
                     </div>
 
@@ -198,20 +227,22 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
               </div>
             </div>
 
+            {/* Summary */}
             <div className="summary-card">
               <h4>Analysis Summary</h4>
+
               <div className="summary-list">
                 <div className="summary-item">
                   <span className="summary-label">Primary Detection:</span>
                   <span className="summary-value">
-                    {classificationResult.classifications[0]?.category || '—'}
+                    {primary?.category || "—"}
                   </span>
                 </div>
 
                 <div className="summary-item">
-                  <span className="summary-label">Confidence Level:</span>
+                  <span className="summary-label">Confidence:</span>
                   <span className="summary-value high-confidence">
-                    {classificationResult.classifications[0]?.confidence?.toFixed(1)}%
+                    {Number(primary?.confidence || 0).toFixed(1)}%
                   </span>
                 </div>
 
@@ -222,7 +253,7 @@ const Results = ({ classificationResult, onReset, onBack, onToggleBookmark, isBo
               </div>
             </div>
 
-          </div>  
+          </div>
 
         </div>
       </div>
