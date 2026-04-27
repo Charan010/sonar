@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 const { connectDB } = require('./services/user.service');
 const uploadRoutes = require("./routes/upload.routes");
+const userRoutes = require("./routes/user.routes");
 
 
 const app = express();
@@ -24,10 +25,11 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/user', userRoutes);
 
 async function startServer() {
   try {
-    //await connectDB();
+      await connectDB();
     console.log('MongoDB is successfully connected.');
 
     app.listen(PORT, () => {

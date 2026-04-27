@@ -5,11 +5,13 @@ const multer = require("multer");
 const axios = require("axios");
 const FormData = require("form-data");
 
-const { authMiddleWare } = require("../middleware/auth.middleware");
 const { saveImage } = require("../services/user.service");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+const USER = "Charan010";
+
+// POST /upload
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file)
@@ -24,13 +26,13 @@ router.post("/", upload.single("image"), async (req, res) => {
       { headers: form.getHeaders() }
     );
 
-    /*
     await saveImage({
-      username: req.user.username,
+      username: USER,
       name: req.file.originalname,
       buffer: req.file.buffer,
       mimeType: req.file.mimetype,
-    });*/
+
+    });
 
     res.json(response.data);
 
