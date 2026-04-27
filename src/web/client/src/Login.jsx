@@ -46,21 +46,38 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="login-bg">
-      <div className="login-card">
-        <div className="login-logo">
-          <Lock size={34} />
+  <div className="login-bg">
+    <div className="login-wrapper">
+
+      {/* LEFT SIDE (branding) */}
+      <div className="login-left">
+        <div className="login-brand">
+          <div className="brand-text">
+            <h1>SONAR AI</h1>
+            <p>Deep Visual Intelligence</p>
+          </div>
         </div>
-        <h2>Login to SONAR AI</h2>
+
+        <div className="login-info">
+          <h2>Analyze. Understand. Explain.</h2>
+          <p>
+            Upload images, run AI classification, and visualize insights
+            with Grad-CAM & LIME.
+          </p>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE (form) */}
+      <div className="login-card glass">
+        <h2>Welcome Back</h2>
 
         <input
           className="login-input"
           type="text"
-          placeholder="Username"
+          placeholder="Enter username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSubmit(e)}
-          autoFocus
           disabled={isLoading}
         />
 
@@ -87,13 +104,15 @@ function Login({ onLogin }) {
           ) : (
             <>
               <LogIn size={18} />
-              Login
+              Enter System
             </>
           )}
         </button>
       </div>
+
     </div>
-  );
-}
+  </div>
+  
+)};
 
 export default Login;

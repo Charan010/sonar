@@ -238,7 +238,7 @@ export default function Sonar() {
               <div className="header-left">
                 <Search size={20} />
                 <div>
-                  <h2>SONAR IMAGE CLASSIFICATION</h2>
+                  <h2 className="custom-heading">SONAR IMAGE CLASSIFICATION</h2>
                   <p className="subtitle">
                     Hello, {username}. Upload SONAR images for AI analysis.
                   </p>
